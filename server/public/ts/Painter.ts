@@ -61,9 +61,6 @@ class Painter{
 		
   	}
 
-
-
-
 	resize() {
 		canvas.width = window.innerWidth - 270;
 		canvas.height = window.innerHeight;

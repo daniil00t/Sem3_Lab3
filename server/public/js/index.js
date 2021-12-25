@@ -231,6 +231,54 @@ var Graph = /** @class */ (function () {
     Graph.prototype.getEdges = function () {
         return this.edges;
     };
+    Graph.prototype.animateGraph = function () {
+        var _this = this;
+        var lenghtOffsetXY = 100;
+        var getRandomArbitrary = function (min, max) {
+            return Math.random() * (max - min) + min;
+        };
+        // const stepOffsetVertex = () => {
+        // 	this.vertices = this.vertices.map(vertex => {
+        // 		const dx = getRandomArbitrary(-lenghtOffsetXY, lenghtOffsetXY)
+        // 		const dy = getRandomArbitrary(-lenghtOffsetXY, lenghtOffsetXY)
+        // 		return {...vertex, x: vertex.x + dx, y: vertex.y + dy}
+        // 	})
+        // 	this.painter.draw(this.getVertices(), this.getEdges())
+        // 	requestAnimationFrame(stepOffsetVertex)
+        // }
+        // requestAnimationFrame(stepOffsetVertex)
+        // ///
+        var deg = +(Math.random() * 360).toFixed();
+        var maxRotate = 55;
+        var step = 5;
+        var distance = 500;
+        var interval = 0.1;
+        var getShift = function (deg, step) {
+            return {
+                x: +(Math.cos(deg * Math.PI / 180) * step).toFixed(),
+                y: +(Math.sin(deg * Math.PI / 180) * step).toFixed()
+            };
+        };
+        var tick = function () {
+            deg += +(Math.random() * maxRotate * 2 - maxRotate).toFixed();
+            var shift = getShift(deg, step);
+            _this.vertices = _this.vertices.map(function (vertex) {
+                // while (Math.abs(vertex.x + shift.x) >= distance || Math.abs(vertex.y + shift.y) >= distance) {
+                deg += +(Math.random() * maxRotate * 2 - maxRotate).toFixed();
+                shift = getShift(deg, step);
+                // }
+                return __assign(__assign({}, vertex), { x: vertex.x + shift.x, y: vertex.y + shift.y });
+            });
+            _this.painter.draw(_this.getVertices(), _this.getEdges());
+            requestAnimationFrame(tick);
+        };
+        requestAnimationFrame(tick);
+    };
+    Graph.prototype.deleteGraph = function () {
+        this.edges = [];
+        this.vertices = [];
+        this.painter.draw(this.getVertices(), this.getEdges());
+    };
     return Graph;
 }());
 var canvas = document.querySelector('canvas');
@@ -246,24 +294,35 @@ canvas.onmousedown = graph.down.bind(graph);
 canvas.onmouseup = graph.up.bind(graph);
 window.onresize = graph.painter.resize.bind(graph);
 var button_run_dijkstra = document.getElementById("run_dijkstra");
+var button_clear_graph = document.getElementById("clear");
+var button_anumate_graph = document.getElementById("animate");
 var path_cnt = document.getElementById("path_cnt");
 var distation_cnt = document.getElementById("distation_cnt");
 button_run_dijkstra.onclick = function (e) {
-    e.stopPropagation();
-    e.preventDefault();
-    var params = {
-        graph: Adapter.parseGraphToString(graph),
-        countVertices: graph.getVertices().length,
-        start: graph.startVertex.index - 1,
-        end: graph.endVertex.index - 1
-    };
-    var query = Object.keys(params)
-        .map(function (k) { return encodeURIComponent(k) + '=' + encodeURIComponent(params[k]); })
-        .join('&');
-    fetch("http://localhost:8080/dijkstra?" + query)
-        .then(function (data) { return data.json().then(function (data) {
-        graph.markPath(data.path);
-        path_cnt.innerHTML = data.path.join(", ");
-        distation_cnt.innerHTML = data.distation;
-    }); });
+    if (graph.getVertices().length > 2) {
+        var params_1 = {
+            graph: Adapter.parseGraphToString(graph),
+            countVertices: graph.getVertices().length,
+            start: graph.startVertex.index - 1,
+            end: graph.endVertex.index - 1
+        };
+        var query = Object.keys(params_1)
+            .map(function (k) { return encodeURIComponent(k) + '=' + encodeURIComponent(params_1[k]); })
+            .join('&');
+        fetch("http://localhost:8080/dijkstra?" + query)
+            .then(function (data) { return data.json().then(function (data) {
+            graph.markPath(data.path);
+            path_cnt.innerHTML = data.path.join(", ");
+            distation_cnt.innerHTML = data.distation;
+        }); });
+    }
+    else {
+        alert("Граф не задан");
+    }
+};
+button_clear_graph.onclick = function (e) {
+    graph.deleteGraph();
+};
+button_anumate_graph.onclick = function (e) {
+    graph.animateGraph();
 };

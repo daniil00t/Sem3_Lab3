@@ -1,4 +1,4 @@
-** index.css */
+
 :root {
     --root-font-size: 12px;
     --bg: #fafafa;
@@ -28,11 +28,40 @@ html, body {
 .panel{
     padding: 20px 30px;
     position: absolute;
-    height: 100vh;
+    height: calc(30% - 60px);
+    min-height: 300px;
     width: 200px;
-    background-color: rgb(14, 34, 212);
+    
     top: 0;
     right: 0;
+    
+}
+
+.panel .panel_wrapper_cnt{
+    background-color: rgb(243, 243, 243);
+    box-shadow: 0 0 10px 3px rgba(149, 149, 149, 0.657);
+    border-radius: 5px;
+    padding: 20px 10px;
+    height: calc(100% - 20px);
     display: flex;
     flex-direction: column;
+    font-size: 1.3em;
+}
+.panel .panel_wrapper_cnt .panel_buttons{
+    margin-bottom: 20px;
+}
+.panel .panel_wrapper_cnt .panel_buttons button{
+    border: none;
+    background-color: rgb(31, 41, 189);
+    border-radius: 20px;
+    color: white;
+    font-weight: bold;
+    height: 40px;
+    cursor: pointer;
+    margin-bottom: 10px;
+    width: 100%;
+}
+
+.panel .panel_wrapper_cnt button:hover{
+    background-color: rgb(20, 28, 144);
 }
