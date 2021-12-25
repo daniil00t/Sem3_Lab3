@@ -1,2 +1,0 @@
-D:\labs\sem_3\Lab3\Lab3Graphs\Debug\Lab3Graphs.exe
-D:\labs\sem_3\Lab3\Lab3Graphs\Debug\Lab3Graphs.pdb
