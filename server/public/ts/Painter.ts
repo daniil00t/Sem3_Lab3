@@ -19,21 +19,37 @@ class Painter{
 				return this.markfillStyle
 			return this.strokeStyle
 		}
+		function canvas_arrow(context, fromx, fromy, tox, toy) {
+			var headlen = 20; // length of head in pixels
+			var dx = tox - fromx;
+			var dy = toy - fromy;
+			var angle = Math.atan2(dy, dx);
+			let sgnX = Math.sign(Math.cos(angle))
+			let sgnY = Math.sign(Math.sin(angle))
+
+			let offset = 20
+			tox = tox - sgnX * offset * Math.abs(Math.cos(angle))
+			toy = toy - sgnY * offset * Math.abs(Math.sin(angle))
+			context.moveTo(fromx, fromy);
+			context.lineTo(tox, toy);
+
+			context.lineTo(tox - headlen * Math.cos(angle - Math.PI / 6), toy - headlen * Math.sin(angle - Math.PI / 6));
+			context.moveTo(tox, toy);
+			context.lineTo(tox - headlen * Math.cos(angle + Math.PI / 6), toy - headlen * Math.sin(angle + Math.PI / 6));
+		}
 		
 		for (let i = 0; i < edges.length; i++) {
 			let fromNode = edges[i].from;
 			let toNode = edges[i].to;
 			this.ctx.beginPath();
 			this.ctx.strokeStyle = getColor(edges[i]);
-			this.ctx.moveTo(fromNode.x, fromNode.y);
-			this.ctx.lineTo(toNode.x, toNode.y);
+			canvas_arrow(this.ctx, fromNode.x, fromNode.y, toNode.x, toNode.y)
 			this.ctx.font = "12px sans-serif";
 			this.ctx.fillStyle = "red";
 				this.ctx.fillText(
 				String(edges[i].weight || edges[i].getWeight()), (fromNode.x + toNode.x) / 2 - 6, (fromNode.y + toNode.y) / 2 + 6);
 			this.ctx.stroke();
 		}
-		
   
 		for (let i = 0; i < vertices.length; i++) {
 			let vertex = vertices[i];

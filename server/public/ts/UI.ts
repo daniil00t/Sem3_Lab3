@@ -52,8 +52,13 @@ button_create_graph.onclick = (e) => {
 	const getRandomArbitrary = (min, max) => {
 		return Math.random() * (max - min) + min;
 	}
+
+	const distation = 400
+	const offsetAngle = 2 * Math.PI / countVertices
+	const center = {x: canvas.width / 2, y: canvas.height / 2}
+
 	for (let index = 0; index < countVertices; index++) {
-		graph.addVertex(Math.ceil(getRandomArbitrary(10, canvas.width - 10)), Math.ceil(getRandomArbitrary(10, canvas.height - 10)))
+		graph.addVertex(Math.ceil(center.x + distation * Math.cos(offsetAngle * index)), Math.ceil(center.y + distation * Math.sin(offsetAngle * index)))
 	}
 	for (let i = 0; i < Math.ceil(countVertices * countEdges / 100); i++) {
 		for (let j = i + 1; j < Math.ceil(countVertices * countEdges / 100); j++) {

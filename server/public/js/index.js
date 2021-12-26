@@ -85,13 +85,28 @@ var Painter = /** @class */ (function () {
                 return _this.markfillStyle;
             return _this.strokeStyle;
         };
+        function canvas_arrow(context, fromx, fromy, tox, toy) {
+            var headlen = 20; // length of head in pixels
+            var dx = tox - fromx;
+            var dy = toy - fromy;
+            var angle = Math.atan2(dy, dx);
+            var sgnX = Math.sign(Math.cos(angle));
+            var sgnY = Math.sign(Math.sin(angle));
+            var offset = 20;
+            tox = tox - sgnX * offset * Math.abs(Math.cos(angle));
+            toy = toy - sgnY * offset * Math.abs(Math.sin(angle));
+            context.moveTo(fromx, fromy);
+            context.lineTo(tox, toy);
+            context.lineTo(tox - headlen * Math.cos(angle - Math.PI / 6), toy - headlen * Math.sin(angle - Math.PI / 6));
+            context.moveTo(tox, toy);
+            context.lineTo(tox - headlen * Math.cos(angle + Math.PI / 6), toy - headlen * Math.sin(angle + Math.PI / 6));
+        }
         for (var i = 0; i < edges.length; i++) {
             var fromNode = edges[i].from;
             var toNode = edges[i].to;
             this.ctx.beginPath();
             this.ctx.strokeStyle = getColor(edges[i]);
-            this.ctx.moveTo(fromNode.x, fromNode.y);
-            this.ctx.lineTo(toNode.x, toNode.y);
+            canvas_arrow(this.ctx, fromNode.x, fromNode.y, toNode.x, toNode.y);
             this.ctx.font = "12px sans-serif";
             this.ctx.fillStyle = "red";
             this.ctx.fillText(String(edges[i].weight || edges[i].getWeight()), (fromNode.x + toNode.x) / 2 - 6, (fromNode.y + toNode.y) / 2 + 6);
@@ -392,8 +407,11 @@ button_create_graph.onclick = function (e) {
     var getRandomArbitrary = function (min, max) {
         return Math.random() * (max - min) + min;
     };
+    var distation = 400;
+    var offsetAngle = 2 * Math.PI / countVertices;
+    var center = { x: canvas.width / 2, y: canvas.height / 2 };
     for (var index = 0; index < countVertices; index++) {
-        graph.addVertex(Math.ceil(getRandomArbitrary(10, canvas.width - 10)), Math.ceil(getRandomArbitrary(10, canvas.height - 10)));
+        graph.addVertex(Math.ceil(center.x + distation * Math.cos(offsetAngle * index)), Math.ceil(center.y + distation * Math.sin(offsetAngle * index)));
     }
     for (var i = 0; i < Math.ceil(countVertices * countEdges / 100); i++) {
         for (var j = i + 1; j < Math.ceil(countVertices * countEdges / 100); j++) {

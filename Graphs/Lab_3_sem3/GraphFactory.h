@@ -1,7 +1,6 @@
 #pragma once
 
 #include "Graph.h"
-
 #include "IntHash.h"
 
 enum class Direction

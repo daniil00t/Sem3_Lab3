@@ -18,16 +18,13 @@ app.get('/', (req, res) => {
 	console.log(params)
 	const StreamExuct = child_process.spawnSync(pathFileExute, ["--createGraph", "0;1;20|1;2;30", "--countVertices", "3"]);
 	console.log(StreamExuct.stdout.toString())
+	// *Безуспешные попытки ввода чисел в stdin*
 	// StreamExuct.stdin.write("1")
 	// StreamExuct.stdin.end()
 	// StreamExuct.stdin.write("20")
 	// StreamExuct.stdin.end()
 	// StreamExuct.stdin.write("9")
 	// StreamExuct.stdin.end()
-
-
-	// console.log(req)
-  	// res.sendFile(path.join(__dirname, "/public", "index.html"))
 	res.send(req.query)
 })
 
