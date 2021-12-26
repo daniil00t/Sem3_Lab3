@@ -155,7 +155,8 @@ void header()
 }
 
 class Interface {
-	void loop() {
+public:
+	static void loop() {
         int command = -1;
         Graph<int>* graph = nullptr;
         int index = 0;
@@ -327,4 +328,16 @@ class Interface {
             }
         }
 	}
+    static void runTests() {
+
+        TestEnvironment* env = new TestEnvironment();
+
+        ADD_NEW_TEST(*env, "AdjacencyList test", testAdjacencyList);
+        ADD_NEW_TEST(*env, "Basic graph test", basicGraphTest);
+        ADD_NEW_TEST(*env, "Topology generation test", topologyGenerationTest);
+        ADD_NEW_TEST(*env, "Dijkstra test", testDijkstra);
+        ADD_NEW_TEST(*env, "Edmonds-Karp algorithm test", testEdmondsKarp);
+
+        env->RunAll();
+    }
 };

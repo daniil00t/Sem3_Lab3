@@ -14,7 +14,6 @@ class Painter{
 
 	draw(vertices: Vertex[], edges: Edge[], path?: Path) {
 		context.clearRect(0, 0, window.innerWidth, window.innerHeight);
-		console.log(vertices)
   		const getColor = (edge: Edge) => {
 			if(edge.marked)
 				return this.markfillStyle
@@ -64,5 +63,8 @@ class Painter{
 	resize() {
 		canvas.width = window.innerWidth - 270;
 		canvas.height = window.innerHeight;
-  }
+	}
+	clearPlane(x = this.canvas.width, y = this.canvas.height){
+		this.ctx.clearRect(0, 0, x, y)
+	}
 }

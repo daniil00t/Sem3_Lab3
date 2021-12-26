@@ -41,6 +41,11 @@ class Edge implements IEdge{
 			)
 		)
 	}
+
+	setMark(marked: boolean): Edge{
+		this.marked = marked
+		return this
+	}
 }
 
 class Graph{
@@ -134,7 +139,8 @@ class Graph{
 	}
 
 	public markPath(path: Path){
-		const edges = this.getEdges();
+		const edges = this.getEdges().map((edge) => edge.setMark(false));
+		console.log(edges)
 		for (let index = 0; index < path.length - 1; index++) {
 			const pathBetweenVertices: [number, number] = [path[index], path[index + 1]];
 			for (let i = 0; i < edges.length; i++) {
@@ -147,7 +153,8 @@ class Graph{
 				}
 			}
 		}
-		this.painter.draw(this.getVertices(), this.getEdges())
+		console.log(edges)
+		this.painter.draw(this.getVertices(), edges)
 	}
 
 	addVertex(x: number, y: number){
@@ -166,8 +173,8 @@ class Graph{
 		this.painter.draw(this.getVertices(), this.getEdges());
 	}	
 
-	addEdge(to: Vertex, from: Vertex){
-		this.edges.push(new Edge(to, from))
+	addEdge(to: Vertex, from: Vertex, weight?: number){
+		this.edges.push(new Edge(to, from, weight))
 		this.painter.draw(this.getVertices(), this.getEdges());
 	}	
 
@@ -194,59 +201,59 @@ class Graph{
 		return this.edges
 	}
 	
-	animateGraph(){
-		const lenghtOffsetXY = 100
-		const getRandomArbitrary = (min, max) => {
-			return Math.random() * (max - min) + min;
-		 }
-		// const stepOffsetVertex = () => {
-		// 	this.vertices = this.vertices.map(vertex => {
-		// 		const dx = getRandomArbitrary(-lenghtOffsetXY, lenghtOffsetXY)
-		// 		const dy = getRandomArbitrary(-lenghtOffsetXY, lenghtOffsetXY)
-		// 		return {...vertex, x: vertex.x + dx, y: vertex.y + dy}
-		// 	})
-		// 	this.painter.draw(this.getVertices(), this.getEdges())
-		// 	requestAnimationFrame(stepOffsetVertex)
-		// }
-		// requestAnimationFrame(stepOffsetVertex)
+	// animateGraph(){
+	// 	const lenghtOffsetXY = 100
+	// 	const getRandomArbitrary = (min, max) => {
+	// 		return Math.random() * (max - min) + min;
+	// 	 }
+	// 	// const stepOffsetVertex = () => {
+	// 	// 	this.vertices = this.vertices.map(vertex => {
+	// 	// 		const dx = getRandomArbitrary(-lenghtOffsetXY, lenghtOffsetXY)
+	// 	// 		const dy = getRandomArbitrary(-lenghtOffsetXY, lenghtOffsetXY)
+	// 	// 		return {...vertex, x: vertex.x + dx, y: vertex.y + dy}
+	// 	// 	})
+	// 	// 	this.painter.draw(this.getVertices(), this.getEdges())
+	// 	// 	requestAnimationFrame(stepOffsetVertex)
+	// 	// }
+	// 	// requestAnimationFrame(stepOffsetVertex)
 
-		// ///
-
-
-		let deg = +(Math.random() * 360).toFixed()
-		const maxRotate = 55
-		const step = 5
-		const distance = 500
-		const interval = 0.1
+	// 	// ///
 
 
-		const getShift = (deg, step) => {
-			return {
-				x: +(Math.cos(deg * Math.PI / 180) * step).toFixed(),
-				y: +(Math.sin(deg * Math.PI / 180) * step).toFixed(),
-			};
-		};
+	// 	let deg = +(Math.random() * 360).toFixed()
+	// 	const maxRotate = 55
+	// 	const step = 5
+	// 	const distance = 500
+	// 	const interval = 0.1
 
-		const tick = () => {
 
-			deg += +(Math.random() * maxRotate * 2 - maxRotate).toFixed();
+	// 	const getShift = (deg, step) => {
+	// 		return {
+	// 			x: +(Math.cos(deg * Math.PI / 180) * step).toFixed(),
+	// 			y: +(Math.sin(deg * Math.PI / 180) * step).toFixed(),
+	// 		};
+	// 	};
 
-			let shift = getShift(deg, step);
-			this.vertices = this.vertices.map(vertex => {
-				// while (Math.abs(vertex.x + shift.x) >= distance || Math.abs(vertex.y + shift.y) >= distance) {
-					deg += +(Math.random() * maxRotate * 2 - maxRotate).toFixed();
-					shift = getShift(deg, step);
-				// }
-				return {...vertex, x: vertex.x + shift.x, y: vertex.y + shift.y}
-			})
-			this.painter.draw(this.getVertices(), this.getEdges())
-			requestAnimationFrame(tick)
-		}
+	// 	const tick = () => {
 
-		requestAnimationFrame(tick)
+	// 		deg += +(Math.random() * maxRotate * 2 - maxRotate).toFixed();
+
+	// 		let shift = getShift(deg, step);
+	// 		this.vertices = this.vertices.map(vertex => {
+	// 			// while (Math.abs(vertex.x + shift.x) >= distance || Math.abs(vertex.y + shift.y) >= distance) {
+	// 				deg += +(Math.random() * maxRotate * 2 - maxRotate).toFixed();
+	// 				shift = getShift(deg, step);
+	// 			// }
+	// 			return {...vertex, x: vertex.x + shift.x, y: vertex.y + shift.y}
+	// 		})
+	// 		this.painter.draw(this.getVertices(), this.getEdges())
+	// 		requestAnimationFrame(tick)
+	// 	}
+
+	// 	requestAnimationFrame(tick)
 
 	
-	}
+	// }
 
 	public deleteGraph(){
 		this.edges = []

@@ -4,7 +4,7 @@
 	<meta charset="UTF-8">
 	<meta http-equiv="X-UA-Compatible" content="IE=edge">
 	<meta name="viewport" content="width=device-width, initial-scale=1.0">
-	<title>Document</title>
+	<title>Lab3 - Graphs</title>
 	<!-- <link rel="stylesheet" href="/css/styles.css"> -->
 	<link rel="stylesheet" href="./css/styles.css">
 </head>
@@ -15,16 +15,30 @@
 		<div class="panel_wrapper_cnt">
 
 			<div class="panel_buttons">
-				<button id="run_dijkstra">Запустить Алгоритм Дейкстры</button>
-				<button id="clear" style="background-color: rgb(190, 55, 55)">Удалить граф</button>
-				<button id="animate" style="background-color: rgb(207, 188, 16)">Анимировать граф</button>
+				<div class="group_buttons">
+					<button id="create_graph" style="background-color: rgb(191, 16, 207)">Создать Рандомный граф</button>
+					<button id="clear" style="background-color: rgb(190, 55, 55)">Удалить граф</button>
+					<button id="animate" style="background-color: rgb(207, 188, 16)">Анимировать граф</button>
+				</div>
+				<div class="group_buttons">
+					<button id="run_tests">Запустить тесты</button>
+				</div>
+				<div class="group_buttons">
+					<button id="run_dijkstra">Запустить Алгоритм Дейкстры</button>
+				</div>
+				<div class="group_buttons">
+					<button id="find_max_stream" style="background-color: rgb(82, 134, 22)">Найти максимальный поток</button>
+					<button id="return_find_max_stream" style="background-color: rgb(143, 221, 54)">Вернуть исходный граф</button>
+				</div>
 			</div>
 
 
 			<span id="path">path: <span id="path_cnt"></span></span>
 			<span id="distation">distation: <span id="distation_cnt"></span></span>
+			<span id="time">time: <span id="time_cnt"></span></span>
 		</div>
 	</div>
+	<pre id="tests"></pre>
 	<!-- <script src="/js/main.js"></script> -->
 	<script src="./js/index.js"></script>
 </body>

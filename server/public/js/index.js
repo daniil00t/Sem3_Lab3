@@ -29,6 +29,42 @@ var Adapter = /** @class */ (function () {
         output = output.substr(0, output.length - 1);
         return output;
     };
+    Adapter.parseStringToGraph = function (input, countVertices) {
+        var output = new Graph();
+        var getRandomArbitrary = function (min, max) {
+            return Math.random() * (max - min) + min;
+        };
+        // add vertices
+        for (var index = 0; index < countVertices; index++) {
+            output.addVertex(Math.ceil(getRandomArbitrary(10, canvas.width - 10)), Math.ceil(getRandomArbitrary(10, canvas.height - 10)));
+        }
+        var arrayOfVertices = input.substr(1, input.length - 2).split(";");
+        arrayOfVertices = arrayOfVertices.slice(0, arrayOfVertices.length - 1);
+        arrayOfVertices.map(function (vertex) {
+            vertex.split(",").map(function (_vertex) {
+                if (!!_vertex.trim()) {
+                    try {
+                        var matchEdge = _vertex.match(/-\[(\d+)\]->\((\d+)\)/i);
+                        var indexStartVertex = Number(vertex.trim().substr(0, 1));
+                        var indexEndVertex = Number(matchEdge[2]);
+                        var weightVertex = Number(matchEdge[1]);
+                        output.addEdge(output.getVertex(indexStartVertex), output.getVertex(indexEndVertex), weightVertex);
+                        console.log(indexStartVertex, indexEndVertex, weightVertex);
+                    }
+                    catch (e) { }
+                }
+            });
+        });
+        // Parse
+        // input.split("|").map((stringEdge, index) => {
+        // 	const separateStringEdge = stringEdge.split(";")
+        // 	const startVertex = Number(separateStringEdge[0])
+        // 	const endVertex = Number(separateStringEdge[1])
+        // 	const weightVertex = Number(separateStringEdge[2])
+        // 	output.addEdge(output.getVertex(startVertex), output.getVertex(endVertex), weightVertex)
+        // })
+        return output;
+    };
     return Adapter;
 }());
 var Painter = /** @class */ (function () {
@@ -44,7 +80,6 @@ var Painter = /** @class */ (function () {
     Painter.prototype.draw = function (vertices, edges, path) {
         var _this = this;
         context.clearRect(0, 0, window.innerWidth, window.innerHeight);
-        console.log(vertices);
         var getColor = function (edge) {
             if (edge.marked)
                 return _this.markfillStyle;
@@ -86,6 +121,11 @@ var Painter = /** @class */ (function () {
         canvas.width = window.innerWidth - 270;
         canvas.height = window.innerHeight;
     };
+    Painter.prototype.clearPlane = function (x, y) {
+        if (x === void 0) { x = this.canvas.width; }
+        if (y === void 0) { y = this.canvas.height; }
+        this.ctx.clearRect(0, 0, x, y);
+    };
     return Painter;
 }());
 var Edge = /** @class */ (function () {
@@ -99,6 +139,10 @@ var Edge = /** @class */ (function () {
     Edge.prototype.getWeight = function () {
         return this.weight || Math.ceil(Math.sqrt(Math.pow(this.from.x - this.to.x, 2) +
             Math.pow(this.from.y - this.to.y, 2)));
+    };
+    Edge.prototype.setMark = function (marked) {
+        this.marked = marked;
+        return this;
     };
     return Edge;
 }());
@@ -179,7 +223,8 @@ var Graph = /** @class */ (function () {
         this.painter.draw(this.getVertices(), this.getEdges());
     };
     Graph.prototype.markPath = function (path) {
-        var edges = this.getEdges();
+        var edges = this.getEdges().map(function (edge) { return edge.setMark(false); });
+        console.log(edges);
         for (var index = 0; index < path.length - 1; index++) {
             var pathBetweenVertices = [path[index], path[index + 1]];
             for (var i = 0; i < edges.length; i++) {
@@ -191,7 +236,8 @@ var Graph = /** @class */ (function () {
                 }
             }
         }
-        this.painter.draw(this.getVertices(), this.getEdges());
+        console.log(edges);
+        this.painter.draw(this.getVertices(), edges);
     };
     Graph.prototype.addVertex = function (x, y) {
         this.vertices.push({
@@ -208,8 +254,8 @@ var Graph = /** @class */ (function () {
         });
         this.painter.draw(this.getVertices(), this.getEdges());
     };
-    Graph.prototype.addEdge = function (to, from) {
-        this.edges.push(new Edge(to, from));
+    Graph.prototype.addEdge = function (to, from, weight) {
+        this.edges.push(new Edge(to, from, weight));
         this.painter.draw(this.getVertices(), this.getEdges());
     };
     Graph.prototype.getVertex = function (index) {
@@ -231,49 +277,48 @@ var Graph = /** @class */ (function () {
     Graph.prototype.getEdges = function () {
         return this.edges;
     };
-    Graph.prototype.animateGraph = function () {
-        var _this = this;
-        var lenghtOffsetXY = 100;
-        var getRandomArbitrary = function (min, max) {
-            return Math.random() * (max - min) + min;
-        };
-        // const stepOffsetVertex = () => {
-        // 	this.vertices = this.vertices.map(vertex => {
-        // 		const dx = getRandomArbitrary(-lenghtOffsetXY, lenghtOffsetXY)
-        // 		const dy = getRandomArbitrary(-lenghtOffsetXY, lenghtOffsetXY)
-        // 		return {...vertex, x: vertex.x + dx, y: vertex.y + dy}
-        // 	})
-        // 	this.painter.draw(this.getVertices(), this.getEdges())
-        // 	requestAnimationFrame(stepOffsetVertex)
-        // }
-        // requestAnimationFrame(stepOffsetVertex)
-        // ///
-        var deg = +(Math.random() * 360).toFixed();
-        var maxRotate = 55;
-        var step = 5;
-        var distance = 500;
-        var interval = 0.1;
-        var getShift = function (deg, step) {
-            return {
-                x: +(Math.cos(deg * Math.PI / 180) * step).toFixed(),
-                y: +(Math.sin(deg * Math.PI / 180) * step).toFixed()
-            };
-        };
-        var tick = function () {
-            deg += +(Math.random() * maxRotate * 2 - maxRotate).toFixed();
-            var shift = getShift(deg, step);
-            _this.vertices = _this.vertices.map(function (vertex) {
-                // while (Math.abs(vertex.x + shift.x) >= distance || Math.abs(vertex.y + shift.y) >= distance) {
-                deg += +(Math.random() * maxRotate * 2 - maxRotate).toFixed();
-                shift = getShift(deg, step);
-                // }
-                return __assign(__assign({}, vertex), { x: vertex.x + shift.x, y: vertex.y + shift.y });
-            });
-            _this.painter.draw(_this.getVertices(), _this.getEdges());
-            requestAnimationFrame(tick);
-        };
-        requestAnimationFrame(tick);
-    };
+    // animateGraph(){
+    // 	const lenghtOffsetXY = 100
+    // 	const getRandomArbitrary = (min, max) => {
+    // 		return Math.random() * (max - min) + min;
+    // 	 }
+    // 	// const stepOffsetVertex = () => {
+    // 	// 	this.vertices = this.vertices.map(vertex => {
+    // 	// 		const dx = getRandomArbitrary(-lenghtOffsetXY, lenghtOffsetXY)
+    // 	// 		const dy = getRandomArbitrary(-lenghtOffsetXY, lenghtOffsetXY)
+    // 	// 		return {...vertex, x: vertex.x + dx, y: vertex.y + dy}
+    // 	// 	})
+    // 	// 	this.painter.draw(this.getVertices(), this.getEdges())
+    // 	// 	requestAnimationFrame(stepOffsetVertex)
+    // 	// }
+    // 	// requestAnimationFrame(stepOffsetVertex)
+    // 	// ///
+    // 	let deg = +(Math.random() * 360).toFixed()
+    // 	const maxRotate = 55
+    // 	const step = 5
+    // 	const distance = 500
+    // 	const interval = 0.1
+    // 	const getShift = (deg, step) => {
+    // 		return {
+    // 			x: +(Math.cos(deg * Math.PI / 180) * step).toFixed(),
+    // 			y: +(Math.sin(deg * Math.PI / 180) * step).toFixed(),
+    // 		};
+    // 	};
+    // 	const tick = () => {
+    // 		deg += +(Math.random() * maxRotate * 2 - maxRotate).toFixed();
+    // 		let shift = getShift(deg, step);
+    // 		this.vertices = this.vertices.map(vertex => {
+    // 			// while (Math.abs(vertex.x + shift.x) >= distance || Math.abs(vertex.y + shift.y) >= distance) {
+    // 				deg += +(Math.random() * maxRotate * 2 - maxRotate).toFixed();
+    // 				shift = getShift(deg, step);
+    // 			// }
+    // 			return {...vertex, x: vertex.x + shift.x, y: vertex.y + shift.y}
+    // 		})
+    // 		this.painter.draw(this.getVertices(), this.getEdges())
+    // 		requestAnimationFrame(tick)
+    // 	}
+    // 	requestAnimationFrame(tick)
+    // }
     Graph.prototype.deleteGraph = function () {
         this.edges = [];
         this.vertices = [];
@@ -283,6 +328,13 @@ var Graph = /** @class */ (function () {
 }());
 var canvas = document.querySelector('canvas');
 var context = canvas.getContext('2d');
+// *******************************
+// TODO:
+// 	1. Arrows
+// 	2. main implemenation to UI.cpp
+// 	3. time run
+// 	4. /tests
+// 	5. Edmons-Karp
 // Instances
 var graph = new Graph();
 // graph.addVertex(200, 200);
@@ -296,8 +348,14 @@ window.onresize = graph.painter.resize.bind(graph);
 var button_run_dijkstra = document.getElementById("run_dijkstra");
 var button_clear_graph = document.getElementById("clear");
 var button_anumate_graph = document.getElementById("animate");
+var button_create_graph = document.getElementById("create_graph");
+var button_find_max_stream = document.getElementById("find_max_stream");
+var button_return_find_max_stream = document.getElementById("return_find_max_stream");
+var button_run_tests = document.getElementById("run_tests");
 var path_cnt = document.getElementById("path_cnt");
 var distation_cnt = document.getElementById("distation_cnt");
+var time_cnt = document.getElementById("time_cnt");
+var tests_cnt = document.getElementById("tests");
 button_run_dijkstra.onclick = function (e) {
     if (graph.getVertices().length > 2) {
         var params_1 = {
@@ -311,9 +369,10 @@ button_run_dijkstra.onclick = function (e) {
             .join('&');
         fetch("http://localhost:8080/dijkstra?" + query)
             .then(function (data) { return data.json().then(function (data) {
-            graph.markPath(data.path);
             path_cnt.innerHTML = data.path.join(", ");
             distation_cnt.innerHTML = data.distation;
+            time_cnt.innerHTML = data.time + "ms";
+            graph.markPath(data.path);
         }); });
     }
     else {
@@ -323,6 +382,64 @@ button_run_dijkstra.onclick = function (e) {
 button_clear_graph.onclick = function (e) {
     graph.deleteGraph();
 };
-button_anumate_graph.onclick = function (e) {
-    graph.animateGraph();
+// button_anumate_graph.onclick = (e) => {
+// 	graph.animateGraph()
+// }
+button_create_graph.onclick = function (e) {
+    var countVertices = Number(prompt("Количество вершин:"));
+    var countEdges = Number(prompt("Количество ребер в %:"));
+    console.log(countVertices, countEdges);
+    var getRandomArbitrary = function (min, max) {
+        return Math.random() * (max - min) + min;
+    };
+    for (var index = 0; index < countVertices; index++) {
+        graph.addVertex(Math.ceil(getRandomArbitrary(10, canvas.width - 10)), Math.ceil(getRandomArbitrary(10, canvas.height - 10)));
+    }
+    for (var i = 0; i < Math.ceil(countVertices * countEdges / 100); i++) {
+        for (var j = i + 1; j < Math.ceil(countVertices * countEdges / 100); j++) {
+            graph.addEdge(graph.getVertex(i), graph.getVertex(j));
+            graph.addEdge(graph.getVertex(j), graph.getVertex(i));
+        }
+    }
+};
+button_find_max_stream.onclick = function (e) {
+    if (graph.getVertices().length > 2) {
+        var params_2 = {
+            graph: Adapter.parseGraphToString(graph),
+            countVertices: graph.getVertices().length,
+            start: graph.startVertex.index - 1,
+            end: graph.endVertex.index - 1
+        };
+        var query = Object.keys(params_2)
+            .map(function (k) { return encodeURIComponent(k) + '=' + encodeURIComponent(params_2[k]); })
+            .join('&');
+        fetch("http://localhost:8080/find_max_stream?" + query)
+            .then(function (data) { return data.json().then(function (data) {
+            console.log(data);
+            // path_cnt.innerHTML = data.path.join(", ")
+            distation_cnt.innerHTML = data.distation;
+            time_cnt.innerHTML = data.time + "ms";
+            var maxStream = Adapter.parseStringToGraph(data.graph, graph.getVertices().length);
+            // graph.markPath(data.path)
+        }); });
+    }
+    else {
+        alert("Граф не задан");
+    }
+};
+button_return_find_max_stream.onclick = function (e) {
+    graph.painter.draw(graph.getVertices(), graph.getEdges());
+};
+button_run_tests.onclick = function (e) {
+    fetch("http://localhost:8080/run_tests")
+        .then(function (data) { return data.json().then(function (data) {
+        console.log(data);
+        tests_cnt.style.display = "block";
+        tests_cnt.innerHTML = data.tests;
+        time_cnt.innerHTML = data.time + "ms";
+        setTimeout(function () {
+            tests_cnt.style.display = "none";
+        }, 5000);
+        // graph.markPath(data.path)
+    }); });
 };

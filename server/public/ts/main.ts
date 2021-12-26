@@ -2,7 +2,13 @@ const canvas = document.querySelector('canvas');
 const context = canvas.getContext('2d');
 
 
-
+// *******************************
+// TODO:
+// 	1. Arrows
+// 	2. main implemenation to UI.cpp
+// 	3. time run
+// 	4. /tests
+// 	5. Edmons-Karp
 
 // Instances
 
